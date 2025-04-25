@@ -1,11 +1,12 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import ImageUpload from '@/components/ImageUpload';
 import ImagePreview from '@/components/ImagePreview';
+import ImageHistory from '@/components/ImageHistory';
 import APIKeyInput from '@/components/APIKeyInput';
 import { useToast } from "@/hooks/use-toast";
 import { generateDrawing } from '@/services/openaiService';
+import { useImageHistory } from '@/hooks/useImageHistory';
 
 const Index = () => {
   const [sourceImage, setSourceImage] = useState<string | null>(null);
@@ -13,6 +14,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState<string>("");
   const { toast } = useToast();
+  const { history, addToHistory, clearHistory } = useImageHistory();
 
   const handleImageSelect = (file: File) => {
     // Reset previous results when a new image is selected
@@ -63,6 +65,7 @@ const Index = () => {
       const imageUrl = await generateDrawing(sourceImage, apiKey);
       console.log("Drawing generated successfully:", imageUrl);
       setResultImage(imageUrl);
+      addToHistory(sourceImage, imageUrl);
       toast({
         title: "Hotovo!",
         description: "Vaše kresba byla úspěšně vygenerována.",
@@ -95,35 +98,41 @@ const Index = () => {
           <APIKeyInput onApiKeyChange={setApiKey} />
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-gray-700">Vstupní fotografie</h2>
-              <ImageUpload onImageSelect={handleImageSelect} />
-              {sourceImage && (
-                <div className="mt-4">
-                  <ImagePreview image={sourceImage} alt="Vstupní fotografie" />
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-gray-700">Výsledná kresba</h2>
-              <div className="flex justify-center">
-                <Button 
-                  onClick={handleGenerateDrawing} 
-                  disabled={!sourceImage || isLoading || !apiKey}
-                  className="w-full sm:w-40"
-                >
-                  {isLoading ? "Generuji..." : "Vytvořit kresbu"}
-                </Button>
+        <div className="space-y-8">
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-700">Vstupní fotografie</h2>
+                <ImageUpload onImageSelect={handleImageSelect} />
+                {sourceImage && (
+                  <div className="mt-4">
+                    <ImagePreview image={sourceImage} alt="Vstupní fotografie" />
+                  </div>
+                )}
               </div>
-              {resultImage && (
-                <div className="mt-4">
-                  <ImagePreview image={resultImage} alt="Výsledná kresba" />
+
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-700">Výsledná kresba</h2>
+                <div className="flex justify-center">
+                  <Button 
+                    onClick={handleGenerateDrawing} 
+                    disabled={!sourceImage || isLoading || !apiKey}
+                    className="w-full sm:w-40"
+                  >
+                    {isLoading ? "Generuji..." : "Vytvořit kresbu"}
+                  </Button>
                 </div>
-              )}
+                {resultImage && (
+                  <div className="mt-4">
+                    <ImagePreview image={resultImage} alt="Výsledná kresba" />
+                  </div>
+                )}
+              </div>
             </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <ImageHistory history={history} onClearHistory={clearHistory} />
           </div>
         </div>
       </div>
