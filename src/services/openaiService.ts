@@ -1,3 +1,4 @@
+
 import { useToast } from "@/hooks/use-toast";
 
 export const generateDrawing = async (imageBase64: string, apiKey: string): Promise<string> => {
@@ -34,6 +35,8 @@ export const generateDrawing = async (imageBase64: string, apiKey: string): Prom
     img.src = imageBase64;
   });
   
+  console.log(`Původní rozměry obrázku: ${img.width}x${img.height}, poměr stran: ${img.width/img.height}`);
+  
   // Určíme nejbližší podporovanou velikost (OpenAI podporuje pouze určité velikosti)
   const supportedSizes = ['1024x1024', '1024x1792', '1792x1024'];
   const aspectRatio = img.width / img.height;
@@ -44,6 +47,8 @@ export const generateDrawing = async (imageBase64: string, apiKey: string): Prom
   } else if (aspectRatio < 0.6) {
     size = '1024x1792'; // vysoký obrázek
   }
+  
+  console.log(`Zvolená velikost pro API: ${size}`);
   
   // Vytvořit FormData pro upload
   const formData = new FormData();
