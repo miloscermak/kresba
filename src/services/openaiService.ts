@@ -55,9 +55,29 @@ export const generateDrawing = async (imageBase64: string, apiKey: string): Prom
     const data = await response.json();
     console.log("OpenAI API response:", data);
     
-    if (data.data && data.data.length > 0 && data.data[0].url) {
-      return data.data[0].url;
+    // Podrobnější kontrola dat a jejich struktury
+    if (!data) {
+      throw new Error("API vrátila prázdnou odpověď");
+    }
+    
+    console.log("Data struktura:", JSON.stringify(data, null, 2));
+    
+    if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+      // Kontrola, zda máme URL nebo b64_json
+      const imageData = data.data[0];
+      
+      if (imageData.url) {
+        console.log("Image URL získáno úspěšně");
+        return imageData.url;
+      } else if (imageData.b64_json) {
+        console.log("Image Base64 získáno úspěšně");
+        return `data:image/png;base64,${imageData.b64_json}`;
+      } else {
+        console.error("Neplatný formát odpovědi - chybí URL i b64_json:", imageData);
+        throw new Error("Neplatný formát odpovědi - chybí URL i b64_json");
+      }
     } else {
+      console.error("Neplatná struktura dat z API:", data);
       throw new Error("Neplatná odpověď z OpenAI API");
     }
   } catch (error) {
