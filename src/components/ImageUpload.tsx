@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Upload } from 'lucide-react';
+import { Upload, ImageOff } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface ImageUploadProps {
@@ -11,12 +11,17 @@ interface ImageUploadProps {
 const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     
-    if (!file) return;
+    if (!file) {
+      console.log("No file selected");
+      return;
+    }
     
+    console.log("File selected:", file.name, file.type, file.size);
     setIsUploading(true);
     
     // Check file type
@@ -45,11 +50,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
     
     try {
       onImageSelect(file);
+      console.log("File passed to onImageSelect");
       toast({
         title: "Fotografie nahrána",
         description: "Fotografie byla úspěšně nahrána.",
       });
     } catch (error) {
+      console.error("Error in image upload:", error);
       toast({
         title: "Chyba",
         description: "Nepodařilo se nahrát fotografii. Zkuste to prosím znovu.",
@@ -57,6 +64,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
       });
     } finally {
       setIsUploading(false);
+      // Reset file input to allow selecting the same file again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
@@ -68,13 +85,26 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
         onChange={handleFileChange}
         className="hidden"
         id="image-upload"
+        ref={fileInputRef}
       />
-      <label htmlFor="image-upload">
-        <Button variant="outline" className="cursor-pointer" disabled={isUploading}>
-          <Upload className="w-4 h-4 mr-2" />
-          {isUploading ? "Nahrávání..." : "Nahrát fotografii"}
-        </Button>
-      </label>
+      <Button 
+        variant="outline" 
+        className="cursor-pointer w-full sm:w-auto" 
+        disabled={isUploading}
+        onClick={handleButtonClick}
+      >
+        {isUploading ? (
+          <>
+            <Upload className="w-4 h-4 mr-2 animate-pulse" />
+            Nahrávání...
+          </>
+        ) : (
+          <>
+            <Upload className="w-4 h-4 mr-2" />
+            Nahrát fotografii
+          </>
+        )}
+      </Button>
     </div>
   );
 };
