@@ -31,19 +31,30 @@ export const generateDrawing = async (imageBase64: string, apiKey: string): Prom
   const formData = new FormData();
   formData.append('image', blob);
   formData.append('prompt', "Styl kresby: Černobílá minimalistická kresba s tučnými černými obrysy a jemným šrafováním šedou barvou pro definování stínů a objemu. Občasné barevné akcenty světle modrou nebo oranžovou. Zjednodušené tvary a rysy, bez drobných detailů. Působí moderně a elegantně.");
-  formData.append('model', 'gpt-image-1');
+  
+  // Změna na správné hodnoty pro vytváření obrázků
+  formData.append('model', 'dall-e-3');
   formData.append('n', '1');
   formData.append('size', '1024x1024');
-  formData.append('quality', 'high');
+  formData.append('quality', 'standard');
 
   try {
     console.log("Sending request to OpenAI API");
-    const response = await fetch('https://api.openai.com/v1/images/edits', {
+    
+    // Změna na správný endpoint a metodu pro vytváření obrázků
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
       },
-      body: formData,
+      body: JSON.stringify({
+        prompt: "Styl kresby: Černobílá minimalistická kresba s tučnými černými obrysy a jemným šrafováním šedou barvou pro definování stínů a objemu. Občasné barevné akcenty světle modrou nebo oranžovou. Zjednodušené tvary a rysy, bez drobných detailů. Působí moderně a elegantně.",
+        model: "dall-e-3",
+        n: 1,
+        size: "1024x1024",
+        quality: "standard"
+      }),
     });
 
     if (!response.ok) {
