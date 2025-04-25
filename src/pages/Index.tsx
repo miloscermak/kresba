@@ -3,12 +3,15 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import ImageUpload from '@/components/ImageUpload';
 import ImagePreview from '@/components/ImagePreview';
+import APIKeyInput from '@/components/APIKeyInput';
 import { useToast } from "@/hooks/use-toast";
+import { generateDrawing } from '@/services/openaiService';
 
 const Index = () => {
   const [sourceImage, setSourceImage] = useState<string | null>(null);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [apiKey, setApiKey] = useState<string>("");
   const { toast } = useToast();
 
   const handleImageSelect = (file: File) => {
@@ -39,30 +42,27 @@ const Index = () => {
     reader.readAsDataURL(file);
   };
 
-  const generateDrawing = async () => {
+  const handleGenerateDrawing = async () => {
     if (!sourceImage) {
       console.error("No source image available");
       return;
     }
 
+    if (!apiKey) {
+      toast({
+        title: "Chybí API klíč",
+        description: "Pro generování kresby je potřeba zadat OpenAI API klíč.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      console.log("Sending request to generate drawing");
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ image: sourceImage }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("Received response:", data);
-      setResultImage(data.url);
+      console.log("Calling OpenAI service to generate drawing");
+      const imageUrl = await generateDrawing(sourceImage, apiKey);
+      console.log("Drawing generated successfully:", imageUrl);
+      setResultImage(imageUrl);
       toast({
         title: "Hotovo!",
         description: "Vaše kresba byla úspěšně vygenerována.",
@@ -71,7 +71,7 @@ const Index = () => {
       console.error("Error generating drawing:", error);
       toast({
         title: "Chyba",
-        description: "Nepodařilo se vygenerovat kresbu. Zkuste to prosím znovu.",
+        description: "Nepodařilo se vygenerovat kresbu. Zkontrolujte API klíč a zkuste to znovu.",
         variant: "destructive",
       });
     } finally {
@@ -91,6 +91,10 @@ const Index = () => {
           </p>
         </div>
 
+        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+          <APIKeyInput onApiKeyChange={setApiKey} />
+        </div>
+
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-4">
@@ -107,8 +111,8 @@ const Index = () => {
               <h2 className="text-lg font-semibold text-gray-700">Výsledná kresba</h2>
               <div className="flex justify-center">
                 <Button 
-                  onClick={generateDrawing} 
-                  disabled={!sourceImage || isLoading}
+                  onClick={handleGenerateDrawing} 
+                  disabled={!sourceImage || isLoading || !apiKey}
                   className="w-full sm:w-40"
                 >
                   {isLoading ? "Generuji..." : "Vytvořit kresbu"}
