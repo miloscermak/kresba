@@ -37,15 +37,15 @@ export const generateDrawing = async (imageBase64: string, apiKey: string): Prom
   
   console.log(`Původní rozměry obrázku: ${img.width}x${img.height}, poměr stran: ${img.width/img.height}`);
   
-  // Určíme nejbližší podporovanou velikost (OpenAI podporuje pouze určité velikosti)
-  const supportedSizes = ['1024x1024', '1024x1792', '1792x1024'];
+  // Určíme nejbližší podporovanou velikost (OpenAI podporuje pouze AKTUÁLNÍ podporované velikosti)
+  // Podle chyby: Supported values are: '1024x1024', '1024x1536', '1536x1024', and 'auto'.
   const aspectRatio = img.width / img.height;
   let size = '1024x1024'; // výchozí velikost
   
-  if (aspectRatio > 1.5) {
-    size = '1792x1024'; // široký obrázek
-  } else if (aspectRatio < 0.6) {
-    size = '1024x1792'; // vysoký obrázek
+  if (aspectRatio > 1.3) {
+    size = '1536x1024'; // široký obrázek
+  } else if (aspectRatio < 0.7) {
+    size = '1024x1536'; // vysoký obrázek
   }
   
   console.log(`Zvolená velikost pro API: ${size}`);
