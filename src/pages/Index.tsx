@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import ImageUpload from '@/components/ImageUpload';
 import ImagePreview from '@/components/ImagePreview';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [sourceImage, setSourceImage] = useState<string | null>(null);
@@ -12,13 +12,23 @@ const Index = () => {
   const { toast } = useToast();
 
   const handleImageSelect = (file: File) => {
+    // Reset previous results when a new image is selected
+    setResultImage(null);
+    
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
         setSourceImage(e.target.result as string);
-        setResultImage(null);
       }
     };
+    reader.onerror = () => {
+      toast({
+        title: "Chyba",
+        description: "Nepodařilo se načíst fotografii. Zkuste to prosím znovu.",
+        variant: "destructive",
+      });
+    };
+    
     reader.readAsDataURL(file);
   };
 
@@ -51,6 +61,7 @@ const Index = () => {
         description: "Nepodařilo se vygenerovat kresbu. Zkuste to prosím znovu.",
         variant: "destructive",
       });
+      console.error("Error generating drawing:", error);
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +84,11 @@ const Index = () => {
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-700">Vstupní fotografie</h2>
               <ImageUpload onImageSelect={handleImageSelect} />
-              {sourceImage && <ImagePreview image={sourceImage} alt="Vstupní fotografie" />}
+              {sourceImage && (
+                <div className="mt-4">
+                  <ImagePreview image={sourceImage} alt="Vstupní fotografie" />
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -87,7 +102,11 @@ const Index = () => {
                   {isLoading ? "Generuji..." : "Vytvořit kresbu"}
                 </Button>
               </div>
-              {resultImage && <ImagePreview image={resultImage} alt="Výsledná kresba" />}
+              {resultImage && (
+                <div className="mt-4">
+                  <ImagePreview image={resultImage} alt="Výsledná kresba" />
+                </div>
+              )}
             </div>
           </div>
         </div>
