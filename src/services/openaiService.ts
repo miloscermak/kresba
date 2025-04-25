@@ -1,4 +1,3 @@
-
 import { useToast } from "@/hooks/use-toast";
 
 export const generateDrawing = async (imageBase64: string, apiKey: string): Promise<string> => {
@@ -27,13 +26,32 @@ export const generateDrawing = async (imageBase64: string, apiKey: string): Prom
   
   const blob = new Blob(byteArrays, { type: 'image/jpeg' });
   
+  // Získáme rozměry vstupního obrázku
+  const img = new Image();
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = imageBase64;
+  });
+  
+  // Určíme nejbližší podporovanou velikost (OpenAI podporuje pouze určité velikosti)
+  const supportedSizes = ['1024x1024', '1024x1792', '1792x1024'];
+  const aspectRatio = img.width / img.height;
+  let size = '1024x1024'; // výchozí velikost
+  
+  if (aspectRatio > 1.5) {
+    size = '1792x1024'; // široký obrázek
+  } else if (aspectRatio < 0.6) {
+    size = '1024x1792'; // vysoký obrázek
+  }
+  
   // Vytvořit FormData pro upload
   const formData = new FormData();
   formData.append('image', blob);
   formData.append('prompt', "Styl kresby: Černobílá minimalistická kresba s tučnými černými obrysy a jemným šrafováním šedou barvou pro definování stínů a objemu. Občasné barevné akcenty světle modrou nebo oranžovou. Zjednodušené tvary a rysy, bez drobných detailů. Působí moderně a elegantně.");
   formData.append('model', 'gpt-image-1');
   formData.append('n', '1');
-  formData.append('size', '1024x1024');
+  formData.append('size', size);
   formData.append('quality', 'high');
 
   try {
