@@ -7,6 +7,7 @@ import APIKeyInput from '@/components/APIKeyInput';
 import { useToast } from "@/hooks/use-toast";
 import { generateDrawing } from '@/services/openaiService';
 import { useImageHistory } from '@/hooks/useImageHistory';
+import { Download } from 'lucide-react';
 
 const Index = () => {
   const [sourceImage, setSourceImage] = useState<string | null>(null);
@@ -82,6 +83,22 @@ const Index = () => {
     }
   };
 
+  const handleDownload = () => {
+    if (resultImage) {
+      const link = document.createElement('a');
+      link.href = resultImage;
+      link.download = `kresba-${new Date().toISOString().slice(0, 10)}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Staženo",
+        description: "Kresba byla úspěšně stažena.",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
@@ -113,7 +130,7 @@ const Index = () => {
 
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold text-gray-700">Výsledná kresba</h2>
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-4">
                   <Button 
                     onClick={handleGenerateDrawing} 
                     disabled={!sourceImage || isLoading || !apiKey}
@@ -121,6 +138,16 @@ const Index = () => {
                   >
                     {isLoading ? "Generuji..." : "Vytvořit kresbu"}
                   </Button>
+                  {resultImage && (
+                    <Button
+                      onClick={handleDownload}
+                      variant="outline"
+                      className="w-full sm:w-40"
+                    >
+                      <Download className="mr-2" />
+                      Stáhnout
+                    </Button>
+                  )}
                 </div>
                 {resultImage && (
                   <div className="mt-4">
