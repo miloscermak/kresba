@@ -11,9 +11,13 @@ export const useImageHistory = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
-    const savedHistory = localStorage.getItem('imageHistory');
-    if (savedHistory) {
-      setHistory(JSON.parse(savedHistory));
+    try {
+      const savedHistory = localStorage.getItem('imageHistory');
+      if (savedHistory) {
+        setHistory(JSON.parse(savedHistory));
+      }
+    } catch (error) {
+      console.warn('Nelze načíst historii z localStorage:', error);
     }
   }, []);
 
@@ -24,14 +28,25 @@ export const useImageHistory = () => {
       timestamp: Date.now()
     };
     
-    const updatedHistory = [newItem, ...history].slice(0, 10); // Uchováváme max 10 položek
-    setHistory(updatedHistory);
-    localStorage.setItem('imageHistory', JSON.stringify(updatedHistory));
+    try {
+      // Uchováváme max 5 položek místo 10 pro snížení rizika překročení kvóty
+      const updatedHistory = [newItem, ...history].slice(0, 5);
+      setHistory(updatedHistory);
+      localStorage.setItem('imageHistory', JSON.stringify(updatedHistory));
+    } catch (error) {
+      console.warn('Nelze uložit historii do localStorage (pravděpodobně překročena velikost):', error);
+      // Aktualizujeme aspoň state, i když se do localStorage nepovedlo uložit
+      setHistory(prevHistory => [newItem, ...prevHistory].slice(0, 5));
+    }
   };
 
   const clearHistory = () => {
     setHistory([]);
-    localStorage.removeItem('imageHistory');
+    try {
+      localStorage.removeItem('imageHistory');
+    } catch (error) {
+      console.warn('Nelze vymazat historii z localStorage:', error);
+    }
   };
 
   return { history, addToHistory, clearHistory };

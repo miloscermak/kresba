@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import ImageUpload from '@/components/ImageUpload';
@@ -66,7 +67,14 @@ const Index = () => {
       const imageUrl = await generateDrawing(sourceImage, apiKey);
       console.log("Drawing generated successfully:", imageUrl);
       setResultImage(imageUrl);
-      addToHistory(sourceImage, imageUrl);
+      
+      try {
+        addToHistory(sourceImage, imageUrl);
+      } catch (error) {
+        console.error("Error adding to history:", error);
+        // Nezobrazíme uživateli chybu, pokud se nepodaří uložit do historie
+      }
+      
       toast({
         title: "Hotovo!",
         description: "Vaše kresba byla úspěšně vygenerována.",
