@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Upload, ImageOff } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import heic2any from 'heic2any';
 
 interface ImageUploadProps {
   onImageSelect: (file: File) => void;
@@ -13,7 +14,28 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const convertHeicToJpeg = async (file: File): Promise<File> => {
+    try {
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.8
+      });
+      
+      // If the result is an array, take the first item
+      const resultBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+      
+      // Create a new File from the blob
+      return new File([resultBlob], file.name.replace(/\.heic$/i, '.jpg'), {
+        type: 'image/jpeg'
+      });
+    } catch (error) {
+      console.error('Error converting HEIC:', error);
+      throw new Error('Nepodařilo se převést HEIC formát');
+    }
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     
     if (!file) {
@@ -24,32 +46,40 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
     console.log("File selected:", file.name, file.type, file.size);
     setIsUploading(true);
     
-    // Check file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/heic'];
-    if (!validTypes.includes(file.type.toLowerCase()) && 
-        !(file.name.toLowerCase().endsWith('.heic'))) {
-      toast({
-        title: "Neplatný formát",
-        description: "Prosím nahrajte soubor typu JPG, PNG nebo HEIC.",
-        variant: "destructive",
-      });
-      setIsUploading(false);
-      return;
-    }
-    
-    // Check file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "Příliš velký soubor",
-        description: "Maximální velikost souboru je 10MB.",
-        variant: "destructive",
-      });
-      setIsUploading(false);
-      return;
-    }
-    
     try {
-      onImageSelect(file);
+      let processedFile = file;
+      
+      // Check if file is HEIC
+      if (file.type.toLowerCase() === 'image/heic' || 
+          file.type.toLowerCase() === 'image/heif' || 
+          file.name.toLowerCase().endsWith('.heic')) {
+        processedFile = await convertHeicToJpeg(file);
+      } else {
+        // Check other file types
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!validTypes.includes(file.type.toLowerCase())) {
+          toast({
+            title: "Neplatný formát",
+            description: "Prosím nahrajte soubor typu JPG, PNG nebo HEIC.",
+            variant: "destructive",
+          });
+          setIsUploading(false);
+          return;
+        }
+      }
+      
+      // Check file size (max 10MB)
+      if (processedFile.size > 10 * 1024 * 1024) {
+        toast({
+          title: "Příliš velký soubor",
+          description: "Maximální velikost souboru je 10MB.",
+          variant: "destructive",
+        });
+        setIsUploading(false);
+        return;
+      }
+      
+      onImageSelect(processedFile);
       console.log("File passed to onImageSelect");
       toast({
         title: "Fotografie nahrána",
