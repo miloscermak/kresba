@@ -112,10 +112,10 @@ const Index = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Převod fotografie na kresbu
+            Nahrajte fotku ...
           </h1>
           <p className="text-gray-600">
-            Nahrajte fotografii a nechte AI vytvořit jedinečnou uměleckou kresbu
+            ... a dostanete kresbu
           </p>
         </div>
 
