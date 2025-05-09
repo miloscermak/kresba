@@ -4,15 +4,18 @@ import { Button } from "@/components/ui/button";
 import ImageUpload from '@/components/ImageUpload';
 import ImagePreview from '@/components/ImagePreview';
 import APIKeyInput from '@/components/APIKeyInput';
+import StyleSelector from '@/components/StyleSelector';
 import { useToast } from "@/hooks/use-toast";
 import { generateDrawing } from '@/services/openaiService';
 import { Download } from 'lucide-react';
+import type { DrawingStyle } from '@/components/StyleSelector';
 
 const Index = () => {
   const [sourceImage, setSourceImage] = useState<string | null>(null);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState<string>("");
+  const [selectedStyle, setSelectedStyle] = useState<DrawingStyle>("komiks");
   const { toast } = useToast();
 
   const handleImageSelect = (file: File) => {
@@ -61,7 +64,7 @@ const Index = () => {
     setIsLoading(true);
     try {
       console.log("Calling OpenAI service to generate drawing");
-      const imageUrl = await generateDrawing(sourceImage, apiKey);
+      const imageUrl = await generateDrawing(sourceImage, apiKey, selectedStyle);
       console.log("Drawing generated successfully:", imageUrl);
       setResultImage(imageUrl);
       
@@ -118,6 +121,10 @@ const Index = () => {
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-700">Vstupní fotografie</h2>
               <ImageUpload onImageSelect={handleImageSelect} />
+              <StyleSelector 
+                selectedStyle={selectedStyle} 
+                onStyleChange={setSelectedStyle}
+              />
               {sourceImage && (
                 <div className="mt-4">
                   <ImagePreview image={sourceImage} alt="Vstupní fotografie" />

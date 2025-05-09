@@ -1,7 +1,19 @@
 
 import { useToast } from "@/hooks/use-toast";
+import type { DrawingStyle } from '@/components/StyleSelector';
 
-export const generateDrawing = async (imageBase64: string, apiKey: string): Promise<string> => {
+const getPromptForStyle = (style: DrawingStyle): string => {
+  if (style === "komiks") {
+    return "Styl kresby: Černobílá minimalistická kresba s tučnými černými obrysy a jemným šrafováním šedou barvou pro definování stínů a objemu. Občasné barevné akcenty světle modrou nebo oranžovou. Zjednodušené tvary a rysy, bez drobných detailů. Působí moderně a elegantně.";
+  } else if (style === "jedna-cara") {
+    return "Draw a minimalist one-line illustration based on the picture. Use clean, continuous black lines with no shading or facial details. The style should match a modern, elegant aesthetic — faceless, simplified, and emotionally expressive through body language. The background should be minimal or abstract, allowing the focus to remain on the figure.";
+  }
+  
+  // Default to comics style
+  return "Styl kresby: Černobílá minimalistická kresba s tučnými černými obrysy a jemným šrafováním šedou barvou pro definování stínů a objemu. Občasné barevné akcenty světle modrou nebo oranžovou. Zjednodušené tvary a rysy, bez drobných detailů. Působí moderně a elegantně.";
+};
+
+export const generateDrawing = async (imageBase64: string, apiKey: string, style: DrawingStyle = "komiks"): Promise<string> => {
   if (!apiKey) {
     throw new Error("API klíč není nastaven");
   }
@@ -53,7 +65,11 @@ export const generateDrawing = async (imageBase64: string, apiKey: string): Prom
   // Vytvořit FormData pro upload
   const formData = new FormData();
   formData.append('image', blob);
-  formData.append('prompt', "Styl kresby: Černobílá minimalistická kresba s tučnými černými obrysy a jemným šrafováním šedou barvou pro definování stínů a objemu. Občasné barevné akcenty světle modrou nebo oranžovou. Zjednodušené tvary a rysy, bez drobných detailů. Působí moderně a elegantně.");
+  
+  // Get the appropriate prompt based on the selected style
+  const prompt = getPromptForStyle(style);
+  formData.append('prompt', prompt);
+  
   formData.append('model', 'gpt-image-1');
   formData.append('n', '1');
   formData.append('size', size);
