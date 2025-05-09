@@ -10,7 +10,7 @@ const getPromptForStyle = (style: DrawingStyle): string => {
   }
   
   // Default to comics style
-  return "Styl kresby: Černobílá minimalistická kresba s tučnými černými obrysy a jemným šrafováním šedou barvou pro definování stínů a objemu. Občasné barevné akcenty světle modrou nebo oranžovou. Zjednodušené tvary a rysy, bez drobných detailů. Působí moderně a elegantně. Čistě bílé pozadí.";
+  return "Styl kresby: Černobílá minimalistická kresba s tučnými černými obrysy a jemným šrafováním šedou barvou pro definování stínů a objemu. Občasné barevné akcenty světle modrou nebo oranžovou. Zjednodušené tvary a rysy, bez drobných detailů. Působí moderně a elegantně.";
 };
 
 export const generateDrawing = async (imageBase64: string, apiKey: string, style: DrawingStyle = "komiks"): Promise<string> => {
