@@ -74,9 +74,10 @@ const Index = () => {
       });
     } catch (error) {
       console.error("Error generating drawing:", error);
+      const errorMessage = error instanceof Error ? error.message : "Neznámá chyba";
       toast({
         title: "Chyba",
-        description: "Nepodařilo se vygenerovat kresbu. Zkontrolujte API klíč a zkuste to znovu.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
