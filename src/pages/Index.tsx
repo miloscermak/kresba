@@ -6,7 +6,7 @@ import ImagePreview from '@/components/ImagePreview';
 import APIKeyInput from '@/components/APIKeyInput';
 import StyleSelector from '@/components/StyleSelector';
 import { useToast } from "@/hooks/use-toast";
-import { generateDrawing } from '@/services/openaiService';
+import { generateDrawing } from '@/services/geminiService';
 import { Download } from 'lucide-react';
 import type { DrawingStyle } from '@/components/StyleSelector';
 
@@ -55,7 +55,7 @@ const Index = () => {
     if (!apiKey) {
       toast({
         title: "Chybí API klíč",
-        description: "Pro generování kresby je potřeba zadat OpenAI API klíč.",
+        description: "Pro generování kresby je potřeba zadat Gemini API klíč.",
         variant: "destructive",
       });
       return;
@@ -63,7 +63,7 @@ const Index = () => {
 
     setIsLoading(true);
     try {
-      console.log("Calling OpenAI service to generate drawing");
+      console.log("Calling Gemini API to generate drawing");
       const imageUrl = await generateDrawing(sourceImage, apiKey, selectedStyle);
       console.log("Drawing generated successfully:", imageUrl);
       setResultImage(imageUrl);
