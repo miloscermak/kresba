@@ -35,7 +35,7 @@ export const generateDrawing = async (
     console.log("Sending request to Gemini API");
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
@@ -64,14 +64,14 @@ export const generateDrawing = async (
       }
     );
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("Gemini API error:", errorData);
-      throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
-    }
-
     const data = await response.json();
-    console.log("Gemini API response received");
+    console.log("Gemini API response:", JSON.stringify(data, null, 2));
+
+    if (!response.ok) {
+      console.error("Gemini API error:", data);
+      const errorMessage = data?.error?.message || `${response.status} ${response.statusText}`;
+      throw new Error(`Gemini API error: ${errorMessage}`);
+    }
 
     if (!data.candidates || !data.candidates[0]?.content?.parts) {
       console.error("Neplatná struktura odpovědi:", data);
