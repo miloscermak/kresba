@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Upload, ImageOff } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import heic2any from 'heic2any';
 
