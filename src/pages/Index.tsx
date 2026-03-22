@@ -19,61 +19,50 @@ const Index = () => {
   const { toast } = useToast();
 
   const handleImageSelect = (file: File) => {
-    // Reset previous results when a new image is selected
+    // Reset předchozího výsledku při nahrání nové fotky
     setResultImage(null);
-    
-    console.log("Processing file in Index component:", file.name);
+
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
-      console.log("FileReader onload triggered");
       if (e.target?.result) {
         setSourceImage(e.target.result as string);
-        console.log("Source image set successfully");
       }
     };
-    
-    reader.onerror = (error) => {
-      console.error("FileReader error:", error);
+
+    reader.onerror = () => {
       toast({
         title: "Chyba",
         description: "Nepodařilo se načíst fotografii. Zkuste to prosím znovu.",
         variant: "destructive",
       });
     };
-    
-    console.log("Starting to read file as data URL");
+
     reader.readAsDataURL(file);
   };
 
   const handleGenerateDrawing = async () => {
-    if (!sourceImage) {
-      console.error("No source image available");
-      return;
-    }
-
-    if (!apiKey) {
-      toast({
-        title: "Chybí API klíč",
-        description: "Pro generování kresby je potřeba zadat Gemini API klíč.",
-        variant: "destructive",
-      });
+    if (!sourceImage || !apiKey) {
+      if (!apiKey) {
+        toast({
+          title: "Chybí API klíč",
+          description: "Pro generování kresby je potřeba zadat Gemini API klíč.",
+          variant: "destructive",
+        });
+      }
       return;
     }
 
     setIsLoading(true);
     try {
-      console.log("Calling Gemini API to generate drawing");
       const imageUrl = await generateDrawing(sourceImage, apiKey, selectedStyle);
-      console.log("Drawing generated successfully:", imageUrl);
       setResultImage(imageUrl);
-      
+
       toast({
         title: "Hotovo!",
         description: "Vaše kresba byla úspěšně vygenerována.",
       });
     } catch (error) {
-      console.error("Error generating drawing:", error);
       const errorMessage = error instanceof Error ? error.message : "Neznámá chyba";
       toast({
         title: "Chyba",
@@ -86,19 +75,14 @@ const Index = () => {
   };
 
   const handleDownload = () => {
-    if (resultImage) {
-      const link = document.createElement('a');
-      link.href = resultImage;
-      link.download = `kresba-${new Date().toISOString().slice(0, 10)}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast({
-        title: "Staženo",
-        description: "Kresba byla úspěšně stažena.",
-      });
-    }
+    if (!resultImage) return;
+
+    const link = document.createElement('a');
+    link.href = resultImage;
+    link.download = `kresba-${new Date().toISOString().slice(0, 10)}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -119,11 +103,12 @@ const Index = () => {
 
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="grid md:grid-cols-2 gap-8">
+            {/* Levý sloupec – vstupní fotka */}
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-700">Vstupní fotografie</h2>
               <ImageUpload onImageSelect={handleImageSelect} />
-              <StyleSelector 
-                selectedStyle={selectedStyle} 
+              <StyleSelector
+                selectedStyle={selectedStyle}
                 onStyleChange={setSelectedStyle}
               />
               {sourceImage && (
@@ -133,11 +118,12 @@ const Index = () => {
               )}
             </div>
 
+            {/* Pravý sloupec – výsledná kresba */}
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-700">Výsledná kresba</h2>
               <div className="flex justify-center gap-4">
-                <Button 
-                  onClick={handleGenerateDrawing} 
+                <Button
+                  onClick={handleGenerateDrawing}
                   disabled={!sourceImage || isLoading || !apiKey}
                   className="w-full sm:w-40"
                 >
