@@ -6,7 +6,7 @@ import ImagePreview from '@/components/ImagePreview';
 import APIKeyInput from '@/components/APIKeyInput';
 import StyleSelector from '@/components/StyleSelector';
 import { useToast } from "@/hooks/use-toast";
-import { generateDrawing } from '@/services/geminiService';
+import { generateDrawing } from '@/services/xaiService';
 import { Download } from 'lucide-react';
 import type { DrawingStyle } from '@/components/StyleSelector';
 
@@ -46,7 +46,7 @@ const Index = () => {
       if (!apiKey) {
         toast({
           title: "Chybí API klíč",
-          description: "Pro generování kresby je potřeba zadat Gemini API klíč.",
+          description: "Pro generování kresby je potřeba zadat xAI API klíč.",
           variant: "destructive",
         });
       }

@@ -1,7 +1,7 @@
 # Kresba – AI konverze fotek na kresby
 
 ## Co to je
-Webová aplikace pro převod fotografií na umělecké kresby pomocí Google Gemini API.
+Webová aplikace pro převod fotografií na umělecké kresby pomocí xAI Grok Imagine API.
 Uživatel nahraje fotku, vybere styl (komiks / jedna čára) a dostane vygenerovanou kresbu.
 
 ## Tech stack
@@ -9,7 +9,7 @@ Uživatel nahraje fotku, vybere styl (komiks / jedna čára) a dostane vygenerov
 - **Build:** Vite 5
 - **Styling:** Tailwind CSS 3 + shadcn/ui (Radix UI primitives)
 - **Ikony:** Lucide React
-- **AI:** Google Gemini 2.5 Flash Image API
+- **AI:** xAI Grok Imagine (`grok-imagine-image-quality`) přes endpoint `/v1/images/edits`
 - **Konverze:** heic2any (HEIC → JPEG pro iPhone fotky)
 - **Hosting:** Netlify (automatický deploy z `main` větve)
 
@@ -22,10 +22,10 @@ src/
 │   ├── ui/                 # shadcn/ui komponenty (button, input, label, radio-group, toast)
 │   ├── ImageUpload.tsx     # Upload fotek s HEIC konverzí
 │   ├── ImagePreview.tsx    # Zobrazení obrázku s error state
-│   ├── APIKeyInput.tsx     # Správa Gemini API klíče (localStorage)
+│   ├── APIKeyInput.tsx     # Správa xAI API klíče (localStorage)
 │   └── StyleSelector.tsx   # Výběr stylu kresby (komiks / jedna čára)
 ├── services/
-│   └── geminiService.ts    # Komunikace s Gemini API
+│   └── xaiService.ts       # Komunikace s xAI Grok Imagine API
 ├── hooks/
 │   ├── use-toast.ts        # Toast notifikace
 │   └── use-mobile.tsx      # Detekce mobilního zařízení
@@ -45,7 +45,7 @@ npm run preview    # Náhled produkčního buildu
 ```
 
 ## API klíč
-Gemini API klíč se zadává přímo v UI a ukládá do `localStorage` (`gemini_api_key`).
+xAI API klíč se zadává přímo v UI a ukládá do `localStorage` (`xai_api_key`).
 Není potřeba žádný .env soubor – vše běží client-side.
 
 ## Deployment

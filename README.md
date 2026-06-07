@@ -1,10 +1,10 @@
 # Kresba
 
-AI aplikace pro konverzi fotografií na umělecké kresby pomocí Google Gemini API.
+AI aplikace pro konverzi fotografií na umělecké kresby pomocí xAI Grok Imagine API.
 
 ## Co to dělá
 
-Nahrajete fotku, vyberete styl kresby (komiks nebo jedna čára) a aplikace vygeneruje kresbu pomocí Gemini 2.5 Flash. Výsledek si můžete stáhnout.
+Nahrajete fotku, vyberete styl kresby (komiks nebo jedna čára) a aplikace vygeneruje kresbu pomocí modelu `grok-imagine-image-quality`. Výsledek si můžete stáhnout.
 
 ## Spuštění
 
@@ -17,14 +17,14 @@ Aplikace běží na `http://localhost:8080`.
 
 ## API klíč
 
-Aplikace potřebuje Google Gemini API klíč. Zadáváte ho přímo v UI – ukládá se do `localStorage` v prohlížeči, nikam se neodesílá.
+Aplikace potřebuje xAI API klíč. Zadáváte ho přímo v UI – ukládá se do `localStorage` v prohlížeči, nikam se neodesílá.
 
 ## Tech stack
 
 - React + TypeScript
 - Vite
 - Tailwind CSS + shadcn/ui
-- Google Gemini API (gemini-2.5-flash-image)
+- xAI Grok Imagine (`grok-imagine-image-quality`) přes `/v1/images/edits`
 - heic2any (konverze iPhone fotek)
 
 ## Deployment

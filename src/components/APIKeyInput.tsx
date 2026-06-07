@@ -8,6 +8,8 @@ interface APIKeyInputProps {
   onApiKeyChange: (apiKey: string) => void;
 }
 
+const STORAGE_KEY = "xai_api_key";
+
 const APIKeyInput: React.FC<APIKeyInputProps> = ({ onApiKeyChange }) => {
   const [apiKey, setApiKey] = useState<string>("");
   const [isSaved, setIsSaved] = useState<boolean>(false);
@@ -15,7 +17,7 @@ const APIKeyInput: React.FC<APIKeyInputProps> = ({ onApiKeyChange }) => {
 
   // Načíst API klíč z localStorage při načtení komponenty
   useEffect(() => {
-    const savedApiKey = localStorage.getItem("gemini_api_key");
+    const savedApiKey = localStorage.getItem(STORAGE_KEY);
     if (savedApiKey) {
       setApiKey(savedApiKey);
       setIsSaved(true);
@@ -33,50 +35,50 @@ const APIKeyInput: React.FC<APIKeyInputProps> = ({ onApiKeyChange }) => {
       return;
     }
 
-    localStorage.setItem("gemini_api_key", apiKey);
+    localStorage.setItem(STORAGE_KEY, apiKey);
     setIsSaved(true);
     onApiKeyChange(apiKey);
 
     toast({
       title: "API klíč uložen",
-      description: "Váš Gemini API klíč byl úspěšně uložen",
+      description: "Váš xAI API klíč byl úspěšně uložen",
     });
   };
 
   const handleClear = () => {
-    localStorage.removeItem("gemini_api_key");
+    localStorage.removeItem(STORAGE_KEY);
     setApiKey("");
     setIsSaved(false);
     onApiKeyChange("");
 
     toast({
       title: "API klíč odstraněn",
-      description: "Váš Gemini API klíč byl odstraněn",
+      description: "Váš xAI API klíč byl odstraněn",
     });
   };
 
   return (
     <div className="space-y-4 border border-gray-200 rounded-lg p-4 bg-gray-50">
-      <h3 className="text-md font-medium">Gemini API klíč</h3>
+      <h3 className="text-md font-medium">xAI API klíč</h3>
       <div className="flex flex-col sm:flex-row gap-2">
         <Input
           type="password"
-          placeholder="Zadejte váš Gemini API klíč"
+          placeholder="Zadejte váš xAI API klíč"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           className="flex-grow"
         />
-        
+
         {isSaved ? (
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleClear}
             className="whitespace-nowrap"
           >
             Odstranit klíč
           </Button>
         ) : (
-          <Button 
+          <Button
             onClick={handleSave}
             className="whitespace-nowrap"
           >
@@ -85,7 +87,7 @@ const APIKeyInput: React.FC<APIKeyInputProps> = ({ onApiKeyChange }) => {
         )}
       </div>
       <p className="text-xs text-gray-500">
-        Klíč je uložen pouze ve vašem prohlížeči. Je potřeba pro generování kreseb pomocí Gemini API.
+        Klíč je uložen pouze ve vašem prohlížeči. Je potřeba pro generování kreseb pomocí xAI API (Grok Imagine).
       </p>
     </div>
   );
